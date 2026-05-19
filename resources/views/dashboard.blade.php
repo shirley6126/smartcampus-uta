@@ -11,14 +11,15 @@
                 <h1 class="text-2xl font-bold mt-1">{{ Auth::user()->name }} </h1>
                 <p class="text-blue-200 text-sm mt-2">{{ now()->isoFormat('dddd, D [de] MMMM [de] YYYY') }}</p>
 
+
                 <div class="flex gap-3 mt-4">
-                    <a href="{{ route('materias.index') }}"
+                    <a href="{{ route('turnos.index') }}"
                        class="bg-white/20 hover:bg-white/30 transition-colors text-white text-sm font-semibold px-4 py-2 rounded-lg">
-                        Ver Materias
+                        Ver Turnos
                     </a>
-                    <a href="{{ route('materias.create') }}"
+                    <a href="{{ route('turnos.create') }}"
                        class="bg-[#f0a500] hover:bg-[#d4920a] transition-colors text-[#1a3a6b] text-sm font-semibold px-4 py-2 rounded-lg">
-                        + Nueva Materia
+                        + Solicitar Turno
                     </a>
                 </div>
             </div>
@@ -50,14 +51,15 @@
                 </div>
                 <div class="p-3 space-y-1">
 
-                    <a href="{{ route('materias.index') }}"
+                    {{-- CAMBIO 2: Bloque de Materias reemplazado completamente por Turnos --}}
+                    <a href="{{ route('turnos.index') }}"
                        class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-blue-50 transition-colors group">
                         <div class="w-9 h-9 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center text-lg transition-colors">
-                            📚
+                            
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-gray-800">Materias</p>
-                            <p class="text-xs text-gray-400">Gestionar asignaturas</p>
+                            <p class="text-sm font-semibold text-gray-800">Turnos</p>
+                            <p class="text-xs text-gray-400">Cola de atención</p>
                         </div>
                         <span class="ml-auto text-gray-300 group-hover:text-blue-400">›</span>
                     </a>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataStructures\Cola;
 use App\Models\Turno;
 use Illuminate\Http\Request;
+use App\Services\HistorialService;
 
 class TurnoController extends Controller
 {
@@ -78,7 +79,7 @@ class TurnoController extends Controller
         $ultimoNumero = Turno::whereDate('created_at', today())->max('numero_turno') ?? 0;
 
         // Creamos el turno → equivale a ENCOLAR en la estructura
-        Turno::create([
+        $turno = Turno::create([
             'numero_turno'       => $ultimoNumero + 1,
             'nombre_solicitante' => $request->nombre_solicitante,
             'cedula'             => $request->cedula,
@@ -86,6 +87,14 @@ class TurnoController extends Controller
             'estado'             => 'en_espera',
             'user_id'            => auth()->id(),
         ]);
+
+        // Registro en el Historial de actividades
+        HistorialService::registrar(
+            "Turno {$turno->numero_formateado} registrado para {$request->nombre_solicitante}",
+            'turnos', 'Turno', $turno->id,
+            null,
+            ['numero' => $ultimoNumero + 1, 'estado' => 'en_espera']
+        );
 
         return redirect()->route('turnos.index')
             ->with('success', ' Turno registrado. Por favor espere su llamado.');
@@ -118,6 +127,14 @@ class TurnoController extends Controller
             'ventanilla' => 'Ventanilla 1',
         ]);
 
+        // Registro en el Historial de actividades
+        HistorialService::registrar(
+            "Turno {$siguiente->numero_formateado} llamado a {$siguiente->ventanilla}",
+            'turnos', 'Turno', $siguiente->id,
+            ['estado' => 'en_espera'],
+            ['estado' => 'en_atencion']
+        );
+
         return redirect()->route('turnos.index')
             ->with('success', " Llamando turno {$siguiente->numero_formateado} — {$siguiente->nombre_solicitante}");
     }
@@ -128,6 +145,14 @@ class TurnoController extends Controller
     public function cancelar(Turno $turno)
     {
         $turno->update(['estado' => 'cancelado']);
+
+        // Registro en el Historial de actividades
+        HistorialService::registrar(
+            "Turno {$turno->numero_formateado} cancelado",
+            'turnos', 'Turno', $turno->id,
+            ['estado' => 'en_espera'],
+            ['estado' => 'cancelado']
+        );
 
         return redirect()->route('turnos.index')
             ->with('info', "Turno {$turno->numero_formateado} cancelado.");

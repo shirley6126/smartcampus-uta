@@ -27,25 +27,43 @@
                     </a>
                 </div>
 
-                {{-- NAVEGACIÓN CENTRAL --}}
+                {{-- NAVEGACIÓN CENTRAL ACTUALIZADA --}}
                 <div class="hidden md:flex items-center gap-1">
                     <a href="{{ route('dashboard') }}"
                        class="px-4 py-2 rounded-md text-sm font-medium transition-colors
                               {{ request()->routeIs('dashboard') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">
                          Inicio
                     </a>
-                    <a href="{{ route('materias.index') }}"
-                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors
-                              {{ request()->routeIs('materias.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">
-                         Materias
+
+                    <a href="{{ route('turnos.index') }}" 
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors 
+                              {{ request()->routeIs('turnos.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">     
+                         Turnos
                     </a>
-                    {{-- Próximamente --}}
-                    <span class="px-4 py-2 rounded-md text-sm font-medium text-blue-300 cursor-not-allowed opacity-60">
-                         Tareas
-                    </span>
-                    <span class="px-4 py-2 rounded-md text-sm font-medium text-blue-300 cursor-not-allowed opacity-60">
-                        Asistencia
-                    </span>
+
+                    <a href="{{ route('tramites.index') }}" 
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors 
+                              {{ request()->routeIs('tramites.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">     
+                         Trámites
+                    </a>
+
+                    <a href="{{ route('documentos.index') }}"   
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors          
+                              {{ request()->routeIs('documentos.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">     
+                         Documentos
+                    </a>
+
+                    <a href="{{ route('rutas.index') }}"   
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors          
+                              {{ request()->routeIs('rutas.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">    
+                         Rutas
+                    </a>
+
+                    <a href="{{ route('historial.index') }}" 
+                       class="px-4 py-2 rounded-md text-sm font-medium transition-colors 
+                              {{ request()->routeIs('historial.*') ? 'bg-white/20 text-white' : 'text-blue-200 hover:bg-white/10 hover:text-white' }}">     
+                         Historial
+                    </a>
                 </div>
 
                 {{-- USUARIO DERECHA --}}
