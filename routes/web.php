@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/rutas/calcular',   [RutaController::class, 'calcularRuta'])->name('rutas.calcular');
     Route::post('/rutas/punto',      [RutaController::class, 'storePunto'])->name('rutas.punto.store');
     Route::post('/rutas/conexion',   [RutaController::class, 'storeConexion'])->name('rutas.conexion.store');
+    Route::delete('/rutas/punto/{punto}',     [RutaController::class, 'destroyPunto'])->name('rutas.punto.destroy');
+    Route::delete('/rutas/conexion/{conexion}', [RutaController::class, 'destroyConexion'])->name('rutas.conexion.destroy');
 });
 
 require __DIR__.'/auth.php';

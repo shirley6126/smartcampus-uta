@@ -11,7 +11,9 @@ class PuntoRuta extends Model
     protected $table = 'puntos_ruta';
 
     protected $fillable = [
-        'nombre', 'descripcion', 'tipo', 'user_id',
+        'nombre', 'descripcion', 'tipo', 'latitud',
+    'longitud', 'user_id' ,
+
     ];
 
     public function getTipoLegibleAttribute(): string

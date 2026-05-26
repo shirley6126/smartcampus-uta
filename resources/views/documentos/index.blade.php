@@ -41,7 +41,7 @@
                 <a href="{{ route('documentos.index', ['modo' => 'bfs']) }}"
                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-colors
                           {{ $modo === 'bfs' ? 'bg-white text-[#1a3a6b]' : 'text-blue-200 hover:bg-white/10' }}">
-                    Anchura (BFS)
+                     Anchura (BFS)
                 </a>
                 <span class="text-blue-200 text-xs ml-auto">
                     {{ $modo === 'dfs' ? 'Padre → Hijos (explorador)' : 'Nivel por nivel' }}
@@ -79,7 +79,7 @@
 
                                 {{-- Nodo de categoría --}}
                                 <div class="flex-1 flex items-center gap-3 px-3 py-2 rounded-xl
-                                            border {{ $nodo->dato->clases_color }} hover:opacity-80 transition-opacity">
+                                             border {{ $nodo->dato->clases_color }} hover:opacity-80 transition-opacity">
 
                                     <span class="text-xl flex-shrink-0">{{ $nodo->dato->icono }}</span>
 
@@ -90,16 +90,23 @@
                                         @endif
                                     </div>
 
-                                    {{-- Indicador de hijos --}}
-                                    <div class="flex items-center gap-2 flex-shrink-0 text-xs opacity-60">
-                                        @if(!empty($nodo->hijos))
-                                            <span>{{ count($nodo->hijos) }} sub</span>
-                                        @endif
+                                    {{-- Indicador de importancia e hijos --}}
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        @php
+                                            $importancia = match($nodo->dato->color) {
+                                                'red'   => ['label' => 'Alta',   'class' => 'bg-red-100 text-red-700'],
+                                                'amber' => ['label' => 'Media',  'class' => 'bg-amber-100 text-amber-700'],
+                                                'blue'  => ['label' => 'Normal', 'class' => 'bg-blue-100 text-blue-700'],
+                                                default => ['label' => 'Baja',   'class' => 'bg-gray-100 text-gray-500'],
+                                            };
+                                        @endphp
+                                        <span class="text-xs px-2 py-0.5 rounded font-semibold {{ $importancia['class'] }}">
+                                            {{ $importancia['label'] }}
+                                        </span>
                                         @if($nodo->dato->documentos->count() > 0)
-                                            <span> {{ $nodo->dato->documentos->count() }}</span>
-                                        @endif
-                                        @if($nodo->esHoja() && $nodo->dato->documentos->count() === 0)
-                                            <span class="bg-white/50 px-1.5 py-0.5 rounded text-xs">hoja</span>
+                                            <span class="text-xs text-gray-400">
+                                                {{ $nodo->dato->documentos->count() }} doc(s)
+                                            </span>
                                         @endif
                                     </div>
                                 </div>
@@ -140,54 +147,51 @@
             {{-- Nueva Categoría --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 bg-[#1a3a6b]">
-                    <h3 class="font-bold text-white text-sm">Nueva Categoría (Nodo)</h3>
+                    <h3 class="font-bold text-white text-sm">Nueva Categoría</h3>
                 </div>
                 <div class="p-5">
                     <form method="POST" action="{{ route('documentos.categoria.store') }}" class="space-y-3">
                         @csrf
 
                         <div>
-                            <x-input-label for="nombre" value="Nombre" />
-                            <x-text-input id="nombre" name="nombre" type="text"
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Nombre</label>
+                            <x-text-input name="nombre" type="text"
                                 class="mt-1 block w-full text-sm" :value="old('nombre')"
                                 placeholder="Ej: Certificados" required />
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <x-input-label for="icono" value="Ícono" />
-                                <x-text-input id="icono" name="icono" type="text"
-                                    class="mt-1 block w-full text-center text-xl" :value="old('icono')"
-                                    maxlength="2" required />
-                            </div>
-                            <div>
-                                <x-input-label for="color" value="Color" />
-                                <select name="color" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
-                                    <option value="blue">Azul</option>
-                                    <option value="green">Verde</option>
-                                    <option value="purple">Morado</option>
-                                    <option value="red">Rojo</option>
-                                    <option value="amber">Ámbar</option>
-                                    <option value="indigo">Índigo</option>
-                                </select>
-                            </div>
+                        {{-- Importancia → reemplaza al color e ícono --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Importancia</label>
+                            <select name="color"
+                                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                <option value="red">Alta</option>
+                                <option value="amber">Media</option>
+                                <option value="blue" selected>Normal</option>
+                                <option value="gray">Baja</option>
+                            </select>
                         </div>
 
+                        {{-- Pertenece a → reemplaza a "Categoría padre" --}}
                         <div>
-                            <x-input-label for="parent_id" value="Categoría padre (opcional)" />
-                            <select name="parent_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
-                                <option value="">— Sin padre (nodo raíz) —</option>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Pertenece a</label>
+                            <select name="parent_id"
+                                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                <option value="">— Categoría principal —</option>
                                 @foreach($categorias as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->icono }} {{ $cat->nombre }}</option>
+                                    <option value="{{ $cat->id }}">{{ $cat->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div>
-                            <x-input-label for="desc_cat" value="Descripción (opcional)" />
-                            <x-text-input id="desc_cat" name="descripcion" type="text"
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Descripción (opcional)</label>
+                            <x-text-input name="descripcion" type="text"
                                 class="mt-1 block w-full text-sm" placeholder="Breve descripción" />
                         </div>
+
+                        {{-- Ícono oculto con valor por defecto --}}
+                        <input type="hidden" name="icono" value="📁">
 
                         <button type="submit"
                             class="w-full bg-[#1a3a6b] text-white font-bold py-2 rounded-xl hover:bg-blue-800 transition-colors text-sm">
@@ -258,5 +262,4 @@
 
         </div>
     </div>
-
 </x-app-layout>
