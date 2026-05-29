@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\RutaController;
@@ -36,13 +37,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/documentos/categoria', [DocumentoController::class, 'storeCategoria'])->name('documentos.categoria.store');
     Route::post('/documentos/documento', [DocumentoController::class, 'storeDocumento'])->name('documentos.documento.store');
 
-    // Grafo — Rutas del Campus
-    Route::get('/rutas',             [RutaController::class, 'index'])->name('rutas.index');
-    Route::post('/rutas/calcular',   [RutaController::class, 'calcularRuta'])->name('rutas.calcular');
-    Route::post('/rutas/punto',      [RutaController::class, 'storePunto'])->name('rutas.punto.store');
-    Route::post('/rutas/conexion',   [RutaController::class, 'storeConexion'])->name('rutas.conexion.store');
-    Route::delete('/rutas/punto/{punto}',     [RutaController::class, 'destroyPunto'])->name('rutas.punto.destroy');
+    // Grafo — Rutas
+    Route::get('/rutas',               [RutaController::class, 'index'])->name('rutas.index');
+    Route::post('/rutas/calcular',     [RutaController::class, 'calcularRuta'])->name('rutas.calcular');
+    Route::post('/rutas/punto',        [RutaController::class, 'storePunto'])->name('rutas.punto.store');
+    Route::post('/rutas/conexion',     [RutaController::class, 'storeConexion'])->name('rutas.conexion.store');
+    Route::delete('/rutas/punto/{punto}',       [RutaController::class, 'destroyPunto'])->name('rutas.punto.destroy');
     Route::delete('/rutas/conexion/{conexion}', [RutaController::class, 'destroyConexion'])->name('rutas.conexion.destroy');
+
+    // Admin — solo rol admin
+    Route::middleware('rol:admin')->group(function () {
+        Route::get('/admin/usuarios',                    [AdminController::class, 'usuarios'])->name('admin.usuarios');
+        Route::patch('/admin/usuarios/{user}/rol',       [AdminController::class, 'cambiarRol'])->name('admin.usuarios.rol');
+        Route::delete('/admin/usuarios/{user}/eliminar', [AdminController::class, 'eliminarUsuario'])->name('admin.usuarios.eliminar');
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -41,6 +41,8 @@
                             ['route' => 'historial.index', 'label' => 'Historial'],
                         ];
                     @endphp
+
+                    {{-- Enlaces estándar --}}
                     @foreach($navItems as $item)
                         <a href="{{ route($item['route']) }}"
                            class="px-4 py-2 rounded-xl text-sm font-500 transition-all duration-200
@@ -50,6 +52,17 @@
                             {{ $item['label'] }}
                         </a>
                     @endforeach
+
+                    {{-- Link admin solo visible para administradores --}}
+                    @if(Auth::user()->esAdmin())
+                        <a href="{{ route('admin.usuarios') }}"
+                           class="px-4 py-2 rounded-xl text-sm font-500 transition-all duration-200
+                                  {{ request()->routeIs('admin.*') 
+                                     ? 'bg-red-600 text-white shadow-sm' 
+                                     : 'text-red-500 hover:text-red-600 hover:bg-red-50' }}">
+                            Admin
+                        </a>
+                    @endif
                 </div>
 
                 {{-- Usuario --}}

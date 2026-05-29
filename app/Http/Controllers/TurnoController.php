@@ -6,6 +6,8 @@ use App\DataStructures\Cola;
 use App\Models\Turno;
 use Illuminate\Http\Request;
 use App\Services\HistorialService;
+use App\DataStructures\ListaCircular;
+use App\Models\Ventanilla;
 
 class TurnoController extends Controller
 {
@@ -27,6 +29,28 @@ class TurnoController extends Controller
         }
 
         return $cola;
+    }
+
+    /**
+     * Construye la Lista Circular con las ventanillas activas
+     * y posiciona el puntero en la ventanilla actual guardada en BD.
+     */
+    private function construirListaCircular(): ListaCircular
+    {
+        $lista       = new ListaCircular();
+        $ventanillas = Ventanilla::where('activa', true)->orderBy('id')->get();
+
+        foreach ($ventanillas as $v) {
+            $lista->agregar($v->nombre);
+        }
+
+        // Restauramos la posición desde la BD
+        $actual = Ventanilla::where('es_actual', true)->first();
+        if ($actual) {
+            $lista->posicionarEn($actual->nombre);
+        }
+
+        return $lista;
     }
 
     /**
@@ -101,42 +125,51 @@ class TurnoController extends Controller
     }
 
     /**
-     * Llama al siguiente turno → operación DESENCOLAR.
+     * Llama al siguiente turno → DESENCOLAR de la Cola
+     * y avanzar en la Lista Circular de ventanillas (Round-Robin).
      */
     public function llamarSiguiente()
     {
-        // Si hay alguien en atención, lo marcamos como atendido primero
+        // 1. Marcar el turno actual como atendido
         Turno::where('estado', 'en_atencion')->update([
             'estado'      => 'atendido',
             'atendido_at' => now(),
         ]);
 
-        // Construimos la cola y desencolamos el primero
-        $cola     = $this->construirCola();
-        $siguiente = $cola->desencolar(); // Sacamos el primero de la fila (FIFO)
+        // 2. Construir la cola y desencolar el siguiente turno
+        $cola      = $this->construirCola();
+        $siguiente = $cola->desencolar();
 
         if ($siguiente === null) {
             return redirect()->route('turnos.index')
                 ->with('info', 'No hay turnos en espera.');
         }
 
-        // Lo marcamos como "en atención"
+        // 3. Avanzar en la Lista Circular → siguiente ventanilla (Round-Robin)
+        $listaCircular    = $this->construirListaCircular();
+        $ventanillaActual = $listaCircular->avanzar(); // Rotamos al siguiente
+
+        // 4. Persistir qué ventanilla es la actual ahora
+        Ventanilla::where('es_actual', true)->update(['es_actual' => false]);
+        Ventanilla::where('nombre', $ventanillaActual)->update(['es_actual' => true]);
+
+        // 5. Asignar la ventanilla rotada al turno
         $siguiente->update([
             'estado'     => 'en_atencion',
             'llamado_at' => now(),
-            'ventanilla' => 'Ventanilla 1',
+            'ventanilla' => $ventanillaActual,
         ]);
 
         // Registro en el Historial de actividades
         HistorialService::registrar(
-            "Turno {$siguiente->numero_formateado} llamado a {$siguiente->ventanilla}",
+            "Turno {$siguiente->numero_formateado} llamado a {$ventanillaActual}",
             'turnos', 'Turno', $siguiente->id,
             ['estado' => 'en_espera'],
             ['estado' => 'en_atencion']
         );
 
         return redirect()->route('turnos.index')
-            ->with('success', " Llamando turno {$siguiente->numero_formateado} — {$siguiente->nombre_solicitante}");
+            ->with('success', "Llamando turno {$siguiente->numero_formateado} — {$ventanillaActual}");
     }
 
     /**

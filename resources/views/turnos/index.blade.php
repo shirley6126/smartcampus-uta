@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-bold text-xl text-gray-800"> Sistema de Turnos — Cola de Atención</h2>
+            <h2 class="font-bold text-xl text-gray-800"> Sistema de Turnos </h2>
             <a href="{{ route('turnos.create') }}"
                class="bg-[#1a3a6b] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
                 + Nuevo Turno
@@ -23,7 +23,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {{-- PANEL IZQUIERDO: Turno actual + botón llamar --}}
+        {{-- PANEL IZQUIERDO: Estadísticas, Ventanillas, Turno actual y Acciones --}}
         <div class="space-y-5">
 
             {{-- Estadísticas rápidas --}}
@@ -39,6 +39,37 @@
                 <div class="bg-white rounded-xl p-4 text-center shadow-sm border border-gray-100">
                     <p class="text-2xl font-bold text-red-500">{{ $stats['cancelados'] }}</p>
                     <p class="text-xs text-gray-500 mt-1">Cancelados</p>
+                </div>
+            </div>
+
+            {{-- Lista Circular de Ventanillas --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-[#1a3a6b] px-4 py-3">
+                    <h4 class="text-white font-bold text-xs uppercase tracking-wider">
+                        Rotacion de Ventanillas 
+                    </h4>
+            
+                </div>
+                <div class="p-3 space-y-2">
+                    @php
+                        $ventanillas = \App\Models\Ventanilla::where('activa', true)->orderBy('id')->get();
+                    @endphp
+                    @foreach($ventanillas as $v)
+                        <div class="flex items-center justify-between px-3 py-2 rounded-xl
+                            {{ $v->es_actual ? 'bg-[#1a3a6b] text-white' : 'bg-gray-50 text-gray-600' }}">
+                            <span class="text-sm font-semibold">{{ $v->nombre }}</span>
+                            @if($v->es_actual)
+                                <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold">
+                                    Actual
+                                </span>
+                            @else
+                                <span class="text-xs opacity-40">En espera</span>
+                            @endif
+                        </div>
+                    @endforeach
+                    <p class="text-xs text-gray-400 text-center pt-1">
+                        Al llamar siguiente, rota automaticamente
+                    </p>
                 </div>
             </div>
 
@@ -74,7 +105,7 @@
         {{-- PANEL DERECHO: Lista de la cola --}}
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="font-bold text-gray-800"> Cola de espera (FIFO)</h3>
+                <h3 class="font-bold text-gray-800"> Cola de espera </h3>
                 <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                     {{ count($cola) }} persona(s) esperando
                 </span>
@@ -84,7 +115,6 @@
                 <div class="text-center py-16 text-gray-400">
                     <div class="text-5xl mb-3"> </div>
                     <p class="font-semibold text-gray-500">No hay nadie en espera</p>
-                    <p class="text-sm mt-1">La cola está vacía por ahora.</p>
                 </div>
             @else
                 <div class="divide-y divide-gray-50">
@@ -139,5 +169,4 @@
         </div>
 
     </div>
-
 </x-app-layout>

@@ -159,8 +159,11 @@
                     </div>
                     <h3 class="font-bold text-gray-900 text-lg">{{ Auth::user()->name }}</h3>
                     <p class="text-xs text-gray-400 mt-1">{{ Auth::user()->email }}</p>
-                    <span class="mt-3 inline-block bg-blue-50 text-[#1a3a6b] text-xs font-semibold px-3 py-1.5 rounded-xl">
-                        Estudiante · FISEI
+                    <span class="mt-3 inline-block text-xs font-semibold px-3 py-1.5 rounded-xl
+                    {{ Auth::user()->esAdmin()    ? 'bg-red-50 text-red-700'   :
+                    (Auth::user()->esEmpleado() ? 'bg-green-50 text-green-700' :
+                    'bg-blue-50 text-[#1a3a6b]') }}">
+                    {{ Auth::user()->rol_legible }} · FISEI
                     </span>
                 </div>
 

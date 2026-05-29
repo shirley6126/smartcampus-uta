@@ -11,7 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Configuración de proxies de confianza existente
         $middleware->trustProxies(at: '*');
+
+        // Registro de tu middleware personalizado
+        $middleware->alias([
+            'rol' => \App\Http\Middleware\CheckRol::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
